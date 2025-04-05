@@ -101,7 +101,7 @@ export default function Login() {
         </CardContent>
         <CardFooter className="flex flex-col items-center space-y-2">
           <p className="text-xs text-neutral-500">
-            Tài khoản mặc định: admin / admin123
+            Tài khoản mặc định: admin / password123
           </p>
         </CardFooter>
       </Card>

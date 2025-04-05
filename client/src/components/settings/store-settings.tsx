@@ -37,6 +37,12 @@ export default function StoreSettingsComponent() {
   // Fetch current settings
   const { data: settings, isLoading } = useQuery<StoreSettings>({
     queryKey: ["/api/settings"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/settings", { headers });
+      if (!response.ok) throw new Error("Không thể tải cài đặt hệ thống");
+      return response.json();
+    }
   });
 
   // Initialize form with default values or existing settings

@@ -16,6 +16,12 @@ export default function Staff() {
   // Fetch staff (users)
   const { data: users, isLoading } = useQuery<User[]>({
     queryKey: ["/api/users"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/users", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách nhân viên");
+      return response.json();
+    }
   });
 
   // Get the user for editing

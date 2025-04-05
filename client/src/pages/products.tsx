@@ -16,11 +16,23 @@ export default function Products() {
   // Fetch products
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/products", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách sản phẩm");
+      return response.json();
+    }
   });
 
   // Fetch categories
   const { data: categories, isLoading: isLoadingCategories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/categories", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh mục sản phẩm");
+      return response.json();
+    }
   });
 
   // Get the product for editing

@@ -25,11 +25,23 @@ export default function Dashboard() {
   // Fetch dashboard data
   const { data: dashboardData, isLoading: isLoadingDashboard } = useQuery<DashboardData>({
     queryKey: ["/api/dashboard"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/dashboard", { headers });
+      if (!response.ok) throw new Error("Không thể tải dữ liệu tổng quan");
+      return response.json();
+    }
   });
 
   // Fetch categories for inventory status
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/categories", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh mục sản phẩm");
+      return response.json();
+    }
   });
 
   return (

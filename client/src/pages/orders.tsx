@@ -20,17 +20,36 @@ export default function Orders() {
   // Fetch orders
   const { data: orders, isLoading: isLoadingOrders } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/orders", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách đơn hàng");
+      return response.json();
+    }
   });
 
   // Fetch customers for dropdown
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/customers", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách khách hàng");
+      return response.json();
+    }
   });
 
   // Fetch order details if on detail page
   const { data: orderDetails, isLoading: isLoadingOrderDetails } = useQuery<OrderWithDetails>({
     queryKey: ["/api/orders", orderId],
     enabled: !!orderId,
+    queryFn: async () => {
+      if (!orderId) throw new Error("Mã đơn hàng không hợp lệ");
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch(`/api/orders/${orderId}`, { headers });
+      if (!response.ok) throw new Error("Không thể tải chi tiết đơn hàng");
+      return response.json();
+    }
   });
 
   if ((isLoadingOrders || isLoadingCustomers) && !isNew) {

@@ -16,6 +16,12 @@ export default function Customers() {
   // Fetch customers
   const { data: customers, isLoading } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/customers", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách khách hàng");
+      return response.json();
+    }
   });
 
   // Get the customer for editing

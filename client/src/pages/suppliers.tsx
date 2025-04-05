@@ -16,6 +16,12 @@ export default function Suppliers() {
   // Fetch suppliers
   const { data: suppliers, isLoading } = useQuery<Supplier[]>({
     queryKey: ["/api/suppliers"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/suppliers", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách nhà cung cấp");
+      return response.json();
+    }
   });
 
   // Get the supplier for editing
