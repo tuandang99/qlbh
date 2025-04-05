@@ -107,11 +107,23 @@ export function OrderForm() {
   // Fetch customers for dropdown
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/customers", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách khách hàng");
+      return response.json();
+    }
   });
 
   // Fetch products for search
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+    queryFn: async () => {
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const response = await fetch("/api/products", { headers });
+      if (!response.ok) throw new Error("Không thể tải danh sách sản phẩm");
+      return response.json();
+    }
   });
 
   // Order creation mutation
@@ -120,14 +132,15 @@ export function OrderForm() {
       order: z.infer<typeof formSchema>;
       items: OrderItem[];
     }) => {
-      return apiRequest("POST", "/api/orders", data);
+      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      return apiRequest("POST", "/api/orders", data, headers);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({
         title: "Đơn hàng đã được tạo",
         description: "Đơn hàng mới đã được tạo thành công.",
-        variant: "success",
+        variant: "default",
       });
       navigate("/orders");
     },
