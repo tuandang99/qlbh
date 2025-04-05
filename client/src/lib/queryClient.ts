@@ -11,6 +11,7 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  customHeaders?: HeadersInit,
 ): Promise<Response> {
   const token = localStorage.getItem("token");
   const headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
@@ -18,6 +19,13 @@ export async function apiRequest(
   // Add authorization token if available
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+  }
+  
+  // Add custom headers if provided
+  if (customHeaders) {
+    Object.keys(customHeaders).forEach(key => {
+      headers[key as keyof HeadersInit] = customHeaders[key as keyof HeadersInit];
+    });
   }
 
   const res = await fetch(url, {

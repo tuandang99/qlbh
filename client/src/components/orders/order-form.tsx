@@ -107,8 +107,14 @@ export function OrderForm() {
   // Fetch customers for dropdown
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
+    staleTime: 0, // Always refetch to ensure up-to-date data
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window focus changes
     queryFn: async () => {
-      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Không có token xác thực");
+      
+      const headers = { Authorization: `Bearer ${token}` };
       const response = await fetch("/api/customers", { headers });
       if (!response.ok) throw new Error("Không thể tải danh sách khách hàng");
       return response.json();
@@ -118,8 +124,14 @@ export function OrderForm() {
   // Fetch products for search
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
+    staleTime: 0, // Always refetch to ensure up-to-date data
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window focus changes
     queryFn: async () => {
-      const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Không có token xác thực");
+      
+      const headers = { Authorization: `Bearer ${token}` };
       const response = await fetch("/api/products", { headers });
       if (!response.ok) throw new Error("Không thể tải danh sách sản phẩm");
       return response.json();
@@ -236,8 +248,8 @@ export function OrderForm() {
   };
 
   // Filter products based on search query
-  const filteredProducts = searchQuery
-    ? products?.filter(product => 
+  const filteredProducts = searchQuery && products
+    ? products.filter(product => 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (product.barcode && product.barcode.toLowerCase().includes(searchQuery.toLowerCase()))
