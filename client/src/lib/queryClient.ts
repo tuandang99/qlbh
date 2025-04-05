@@ -24,7 +24,10 @@ export async function apiRequest(
   // Add custom headers if provided
   if (customHeaders) {
     Object.keys(customHeaders).forEach(key => {
-      headers[key as keyof HeadersInit] = customHeaders[key as keyof HeadersInit];
+      const value = customHeaders[key as keyof HeadersInit];
+      if (value) {
+        headers[key as keyof HeadersInit] = typeof value === 'string' ? value : String(value);
+      }
     });
   }
 

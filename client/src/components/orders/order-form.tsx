@@ -6,6 +6,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@/lib/navigation";
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { logger } from "@/logs/logger";
 import { insertOrderSchema, insertOrderItemSchema, Product, Customer } from "@shared/schema";
 
 import {
@@ -145,9 +146,21 @@ export function OrderForm() {
       items: OrderItem[];
     }) => {
       const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
-      return apiRequest("POST", "/api/orders", data, headers);
+      
+      // Log the request
+      logger.log("Gửi yêu cầu tạo đơn hàng", data);
+      
+      try {
+        const response = await apiRequest("POST", "/api/orders", data, headers);
+        logger.log("Phản hồi từ server", response);
+        return response;
+      } catch (error) {
+        logger.error("Lỗi gửi yêu cầu", error);
+        throw error;
+      }
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      logger.log("Tạo đơn hàng thành công", data);
       await queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       toast({
         title: "Đơn hàng đã được tạo",
@@ -157,6 +170,7 @@ export function OrderForm() {
       navigate("/orders");
     },
     onError: (error: Error) => {
+      logger.error("Lỗi tạo đơn hàng", error);
       toast({
         title: "Lỗi",
         description: error.message || "Đã xảy ra lỗi khi tạo đơn hàng.",
@@ -184,7 +198,16 @@ export function OrderForm() {
       subtotal: item.subtotal,
     }));
 
-    createOrder({ order: data, items });
+    // Log the data being sent to the server
+    logger.log("Đang tạo đơn hàng mới...", { order: data, items });
+    
+    // Set the order date to current if not set
+    const orderWithDate = {
+      ...data,
+      orderDate: data.orderDate || new Date(),
+    };
+    
+    createOrder({ order: orderWithDate, items });
   };
 
   // Format currency
