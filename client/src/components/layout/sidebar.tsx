@@ -171,16 +171,12 @@ export function Sidebar({ isMobile, isOpen, onClose }: SidebarProps) {
                       : "text-neutral-700 hover:bg-neutral-200 rounded-md"
                   )}
                 >
-                  <Link href={item.path}>
-                    <a 
-                      className="flex items-center px-3 py-2.5 rounded-md"
-                      onClick={handleLinkClick}
-                    >
+                  <Link href={item.path} onClick={handleLinkClick}
+                    className="flex items-center px-3 py-2.5 rounded-md">
                       {item.icon}
                       <span className={cn("font-medium", isActive && "font-medium")}>
                         {item.label}
                       </span>
-                    </a>
                   </Link>
                 </div>
               );
@@ -190,14 +186,10 @@ export function Sidebar({ isMobile, isOpen, onClose }: SidebarProps) {
         
         <div className="p-4 border-t border-neutral-300">
           <div>
-            <Link href="/settings">
-              <a 
-                className="flex items-center px-3 py-2 rounded-md hover:bg-neutral-200"
-                onClick={handleLinkClick}
-              >
+            <Link href="/settings" onClick={handleLinkClick}
+                className="flex items-center px-3 py-2 rounded-md hover:bg-neutral-200">
                 <Settings className="mr-3 h-5 w-5 text-neutral-600" />
                 <span>Cài đặt</span>
-              </a>
             </Link>
           </div>
           

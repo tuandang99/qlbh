@@ -31,19 +31,20 @@ export function InventoryStatus({
 
   // Get stock status
   const getStockStatus = (product: Product) => {
-    const { stockQuantity, alertThreshold = 5 } = product;
+    const { stockQuantity, alertThreshold } = product;
+    const threshold = alertThreshold ?? 5; // Default to 5 if alertThreshold is null
     
     if (stockQuantity <= 0) {
       return { 
         label: "Hết hàng", 
         variant: "danger" as const
       };
-    } else if (stockQuantity <= alertThreshold) {
+    } else if (stockQuantity <= threshold) {
       return { 
         label: "Sắp hết hàng", 
         variant: "danger" as const
       };
-    } else if (stockQuantity <= alertThreshold * 2) {
+    } else if (stockQuantity <= threshold * 2) {
       return { 
         label: "Cần nhập thêm", 
         variant: "warning" as const
@@ -82,9 +83,10 @@ export function InventoryStatus({
       accessorKey: "stockQuantity",
       header: "Tồn kho",
       cell: ({ row }) => {
-        const { stockQuantity, alertThreshold = 5 } = row.original;
+        const { stockQuantity, alertThreshold } = row.original;
+        const threshold = alertThreshold ?? 5; // Default to 5 if alertThreshold is null
         return (
-          <div className={`text-sm font-medium ${stockQuantity <= alertThreshold ? 'text-red-600' : stockQuantity <= alertThreshold * 2 ? 'text-amber-600' : ''}`}>
+          <div className={`text-sm font-medium ${stockQuantity <= threshold ? 'text-red-600' : stockQuantity <= threshold * 2 ? 'text-amber-600' : ''}`}>
             {stockQuantity}
           </div>
         );
@@ -108,7 +110,7 @@ export function InventoryStatus({
           <Button 
             variant="ghost" 
             className="text-primary text-sm"
-            onClick={() => navigate("/inventory")}
+            onClick={() => navigate && typeof navigate === 'function' && navigate("/inventory")}
           >
             Xem tất cả
           </Button>
