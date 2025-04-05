@@ -12,6 +12,7 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import jwt from "jsonwebtoken";
 import express from "express";
+import bcrypt from "bcrypt";
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
@@ -76,7 +77,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const user = await storage.getUserByUsername(username);
       
-      if (!user || user.password !== password) {
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      
+      // Verify password with bcrypt
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
       
@@ -143,7 +150,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "Username already exists" });
       }
       
-      const newUser = await storage.createUser(req.body);
+      // Hash password before creating user
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
+      
+      const userData = {
+        ...req.body,
+        password: hashedPassword,
+        role: req.body.role || "staff", // Default role
+        active: req.body.active !== undefined ? req.body.active : true // Default active
+      };
+      
+      const newUser = await storage.createUser(userData);
       
       // Log activity
       await storage.logActivity({
@@ -175,7 +193,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      const updatedUser = await storage.updateUser(id, req.body);
+      // If password is being changed, hash it
+      let userData = { ...req.body };
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        userData.password = await bcrypt.hash(req.body.password, salt);
+      }
+      
+      const updatedUser = await storage.updateUser(id, userData);
       
       // Log activity
       await storage.logActivity({
