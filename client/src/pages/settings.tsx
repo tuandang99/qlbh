@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { MainLayout } from "@/components/layout/main-layout";
-import { StoreSettings } from "@/components/settings/store-settings";
+import StoreSettingsComponent from "@/components/settings/store-settings";
 import { BackupRestore } from "@/components/system/backup-restore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +32,7 @@ export default function Settings() {
             </TabsList>
             
             <TabsContent value="store">
-              <StoreSettings />
+              <StoreSettingsComponent />
             </TabsContent>
             
             <TabsContent value="backup">

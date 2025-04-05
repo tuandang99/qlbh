@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { LoginData, loginSchema } from "@shared/schema";
 import { useAuth } from "@/lib/auth.tsx";
 import { Store } from "lucide-react";
@@ -21,7 +21,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
   const { login, isLoading, error } = useAuth();
-  const [_, navigate] = useNavigate();
+  const [_, navigate] = useLocation();
 
   // Initialize form
   const form = useForm<LoginData>({

@@ -32,7 +32,8 @@ const formSchema = insertStoreSettingsSchema.extend({
   openingHours: z.string().optional(),
 });
 
-export function StoreSettings() {
+// Export component
+export default function StoreSettingsComponent() {
   // Fetch current settings
   const { data: settings, isLoading } = useQuery<StoreSettings>({
     queryKey: ["/api/settings"],
@@ -76,7 +77,7 @@ export function StoreSettings() {
       toast({
         title: "Cài đặt đã được lưu",
         description: "Thông tin cửa hàng đã được cập nhật thành công.",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error: Error) => {

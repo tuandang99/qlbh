@@ -23,6 +23,11 @@ export function DatePickerWithRange({
   date,
   setDate
 }: DatePickerWithRangeProps) {
+  const handleSelect = (range: DateRange | undefined) => {
+    if (range) {
+      setDate(range);
+    }
+  };
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -56,7 +61,7 @@ export function DatePickerWithRange({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>

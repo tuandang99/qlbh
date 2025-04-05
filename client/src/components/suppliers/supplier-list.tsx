@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "wouter";
+import { useNavigate } from "@/lib/navigation";
 import { 
   Truck, 
   Edit, 
