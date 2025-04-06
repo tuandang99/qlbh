@@ -13,6 +13,7 @@ import { Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logger } from "@/logs/logger";
 import { generateOrderPDF } from "@/components/orders/order-pdf";
+import ReactDOM from 'react-dom/client';
 
 export default function Orders() {
   const [location] = useLocation();
@@ -105,7 +106,48 @@ export default function Orders() {
                 variant="outline" 
                 className="flex items-center"
                 onClick={() => {
-                  window.print();
+                  // Import component chỉ khi cần để cải thiện hiệu suất
+                  import('@/components/orders/order-print').then(module => {
+                    const OrderPrint = module.default;
+                    // Render component in vào một div riêng biệt và in nó
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      printWindow.document.write(`
+                        <html>
+                          <head>
+                            <title>In hóa đơn: ${orderDetails.orderNumber}</title>
+                            <style>
+                              body { font-family: Arial, sans-serif; }
+                              table { width: 100%; border-collapse: collapse; }
+                              th, td { padding: 8px; text-align: left; }
+                              th { border-bottom: 1px solid #ddd; }
+                              .text-right { text-align: right; }
+                              .border-b { border-bottom: 1px solid #ddd; }
+                            </style>
+                          </head>
+                          <body>
+                            <div id="print-content"></div>
+                          </body>
+                        </html>
+                      `);
+                      
+                      const printContainer = printWindow.document.getElementById('print-content');
+                      if (printContainer) {
+                        // Render component vào container
+                        const root = ReactDOM.createRoot(printContainer);
+                        root.render(<OrderPrint order={orderDetails} />);
+                        
+                        // Đợi để đảm bảo component đã render xong
+                        setTimeout(() => {
+                          printWindow.print();
+                          printWindow.onafterprint = () => {
+                            printWindow.close();
+                          };
+                        }, 500);
+                      }
+                    }
+                  });
+                  
                   toast({
                     title: "In hóa đơn",
                     description: "Đang mở cửa sổ in...",

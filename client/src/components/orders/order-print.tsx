@@ -30,7 +30,7 @@ const OrderPrint = forwardRef<HTMLDivElement, OrderPrintProps>(({ order, storeSe
   };
 
   return (
-    <div ref={ref} className="p-8 max-w-3xl mx-auto bg-white text-black">
+    <div ref={ref} className="p-8 max-w-3xl mx-auto bg-white text-black print-content">
       {/* Store Info */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold">{storeSettings?.storeName || "Cửa hàng bán lẻ"}</h1>

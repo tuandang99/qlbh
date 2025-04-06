@@ -14,6 +14,9 @@ export const generateOrderPDF = (
     // Khởi tạo đối tượng PDF với khổ giấy A4
     const doc = new jsPDF();
     
+    // Thiết lập font
+    doc.setFont("helvetica");
+    
     // Format tiền tệ
     const formatCurrency = (value: number) => {
       return new Intl.NumberFormat("vi-VN", {

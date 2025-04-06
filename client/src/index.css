@@ -11,3 +11,28 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Ẩn các phần tử không cần thiết khi in */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-content, 
+  .print-content * {
+    visibility: visible;
+  }
+  
+  .print-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  
+  /* Ẩn các nút không cần thiết khi in */
+  button, 
+  .no-print {
+    display: none !important;
+  }
+}
