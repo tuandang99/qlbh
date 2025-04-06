@@ -217,11 +217,12 @@ export function OrderForm() {
       // Create a proper order object with all required fields
       const orderData = {
         ...data,
+        orderNumber: generateOrderNumber(), // Needed for validation, server will replace this
         status: "pending", 
         totalAmount: totalAmount,
         discount: discount,
         finalAmount: finalAmount,
-        orderDate: new Date().toISOString(), // Format as ISO string for proper handling
+        orderDate: new Date(), // Use Date object directly
       };
       
       logger.log("Gọi createOrder với data", { order: orderData, items });

@@ -138,7 +138,13 @@ export const insertCategorySchema = createInsertSchema(categories).omit({ id: tr
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertCustomerSchema = createInsertSchema(customers).omit({ id: true });
 export const insertSupplierSchema = createInsertSchema(suppliers).omit({ id: true });
-export const insertOrderSchema = createInsertSchema(orders).omit({ id: true });
+// Create order schema with orderNumber being optional, server will generate it
+export const insertOrderSchema = createInsertSchema(orders)
+  .omit({ id: true })
+  .extend({ 
+    orderNumber: z.string().optional(),
+    orderDate: z.date().optional().or(z.string().transform(val => new Date(val)))
+  });
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
 export const insertPurchaseSchema = createInsertSchema(purchases).omit({ id: true });
 export const insertPurchaseItemSchema = createInsertSchema(purchaseItems).omit({ id: true });
