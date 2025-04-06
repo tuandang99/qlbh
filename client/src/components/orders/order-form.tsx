@@ -679,19 +679,23 @@ export function OrderForm() {
               
               <div className="flex flex-col space-y-4">
                 <Button 
-                  type="submit" 
+                  type="button" 
                   size="lg" 
                   disabled={isCreatingOrder || orderItems.length === 0}
-                  onClick={(e) => {
-                    logger.log("Nút tạo đơn hàng được click");
+                  onClick={() => {
+                    logger.log("Nút tạo đơn hàng được click - trực tiếp gọi onSubmit");
                     if (orderItems.length === 0) {
-                      e.preventDefault();
                       toast({
                         title: "Không thể tạo đơn hàng",
                         description: "Vui lòng thêm ít nhất một sản phẩm vào đơn hàng.",
                         variant: "destructive",
                       });
+                      return;
                     }
+                    
+                    // Lấy dữ liệu từ form
+                    const formData = form.getValues();
+                    onSubmit(formData);
                   }}
                 >
                   Tạo đơn hàng
