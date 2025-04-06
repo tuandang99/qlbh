@@ -95,6 +95,7 @@ export function OrderForm() {
       finalAmount: 0,
       paymentMethod: "cash",
       notes: "",
+      orderDate: new Date(),
     },
   });
 
@@ -181,33 +182,57 @@ export function OrderForm() {
 
   // Handle form submission
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    if (orderItems.length === 0) {
+    try {
+      logger.log("Bắt đầu hàm onSubmit với data", data);
+      logger.log("Số lượng sản phẩm trong đơn hàng:", orderItems.length);
+      
+      if (orderItems.length === 0) {
+        toast({
+          title: "Không thể tạo đơn hàng",
+          description: "Vui lòng thêm ít nhất một sản phẩm vào đơn hàng.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare order items without the product objects
+      const items = orderItems.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        subtotal: item.subtotal,
+      }));
+
+      // Log the data being sent to the server
+      logger.log("Đang tạo đơn hàng mới...", { order: data, items });
+      
+      // Set the order date to current if not set
+      const orderWithDate = {
+        ...data,
+        orderDate: data.orderDate || new Date(),
+        status: "pending", // Ensure status is set
+        totalAmount: totalAmount,
+        discount: discount,
+        finalAmount: finalAmount,
+      };
+      
+      logger.log("Gọi createOrder với data", { order: orderWithDate, items });
+      
+      // Call the mutation function
+      createOrder({ 
+        order: orderWithDate, 
+        items 
+      });
+      
+      logger.log("createOrder được gọi thành công");
+    } catch (error) {
+      logger.error("Lỗi trong hàm onSubmit", error);
       toast({
-        title: "Không thể tạo đơn hàng",
-        description: "Vui lòng thêm ít nhất một sản phẩm vào đơn hàng.",
+        title: "Lỗi xử lý form",
+        description: "Đã xảy ra lỗi khi xử lý form. Vui lòng thử lại.",
         variant: "destructive",
       });
-      return;
     }
-
-    // Prepare order items without the product objects
-    const items = orderItems.map(item => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      subtotal: item.subtotal,
-    }));
-
-    // Log the data being sent to the server
-    logger.log("Đang tạo đơn hàng mới...", { order: data, items });
-    
-    // Set the order date to current if not set
-    const orderWithDate = {
-      ...data,
-      orderDate: data.orderDate || new Date(),
-    };
-    
-    createOrder({ order: orderWithDate, items });
   };
 
   // Format currency
@@ -653,7 +678,22 @@ export function OrderForm() {
               </Card>
               
               <div className="flex flex-col space-y-4">
-                <Button type="submit" size="lg" disabled={isCreatingOrder || orderItems.length === 0}>
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  disabled={isCreatingOrder || orderItems.length === 0}
+                  onClick={(e) => {
+                    logger.log("Nút tạo đơn hàng được click");
+                    if (orderItems.length === 0) {
+                      e.preventDefault();
+                      toast({
+                        title: "Không thể tạo đơn hàng",
+                        description: "Vui lòng thêm ít nhất một sản phẩm vào đơn hàng.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
                   Tạo đơn hàng
                 </Button>
                 <Button type="button" variant="outline" size="lg" onClick={() => navigate("/orders")}>
