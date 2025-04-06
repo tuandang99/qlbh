@@ -715,6 +715,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Received order request:", JSON.stringify(req.body));
       
       // Validate main order
+      // Convert orderDate string to Date object if it's provided as string
+      if (req.body.order && req.body.order.orderDate && typeof req.body.order.orderDate === 'string') {
+        req.body.order.orderDate = new Date(req.body.order.orderDate);
+      }
+      
       const orderData = insertOrderSchema.parse(req.body.order);
       console.log("Order data parsed:", JSON.stringify(orderData));
       

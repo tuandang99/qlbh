@@ -217,12 +217,11 @@ export function OrderForm() {
       // Create a proper order object with all required fields
       const orderData = {
         ...data,
-        orderNumber: generateOrderNumber(), // Add required orderNumber
-        orderDate: new Date(), // Ensure it's a Date object, not a string
         status: "pending", 
         totalAmount: totalAmount,
         discount: discount,
         finalAmount: finalAmount,
+        orderDate: new Date().toISOString(), // Format as ISO string for proper handling
       };
       
       logger.log("Gọi createOrder với data", { order: orderData, items });
