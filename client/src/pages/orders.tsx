@@ -10,12 +10,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Printer, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { logger } from "@/logs/logger";
+import { generateOrderPDF } from "@/components/orders/order-pdf";
 
 export default function Orders() {
   const [location] = useLocation();
   const isNew = location === "/orders/new";
   const isDetail = location.match(/^\/orders\/\d+$/);
   const orderId = isDetail ? parseInt(location.split("/")[2]) : undefined;
+  const { toast } = useToast();
 
   // Fetch orders
   const { data: orders, isLoading: isLoadingOrders } = useQuery<Order[]>({
@@ -97,11 +101,40 @@ export default function Orders() {
               <p className="text-neutral-500">Ngày tạo: {formatDate(orderDetails.orderDate)}</p>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline" className="flex items-center">
+              <Button 
+                variant="outline" 
+                className="flex items-center"
+                onClick={() => {
+                  window.print();
+                  toast({
+                    title: "In hóa đơn",
+                    description: "Đang mở cửa sổ in...",
+                  });
+                }}
+              >
                 <Printer className="h-4 w-4 mr-2" />
                 In hóa đơn
               </Button>
-              <Button variant="outline" className="flex items-center">
+              <Button 
+                variant="outline" 
+                className="flex items-center"
+                onClick={() => {
+                  try {
+                    generateOrderPDF(orderDetails);
+                    toast({
+                      title: "Xuất PDF thành công",
+                      description: `Đã lưu hóa đơn ${orderDetails.orderNumber} dưới dạng PDF.`,
+                    });
+                  } catch (error) {
+                    logger.error("Lỗi khi xuất PDF", error);
+                    toast({
+                      title: "Lỗi xuất PDF",
+                      description: "Không thể xuất hóa đơn sang PDF. Vui lòng thử lại.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Xuất PDF
               </Button>

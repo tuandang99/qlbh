@@ -180,6 +180,14 @@ export function OrderForm() {
     },
   });
 
+  // Generate order number
+  const generateOrderNumber = () => {
+    const prefix = "ORD";
+    const timestamp = new Date().getTime().toString().substring(7);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `${prefix}-${timestamp}-${random}`;
+  };
+
   // Handle form submission
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     try {
@@ -206,21 +214,22 @@ export function OrderForm() {
       // Log the data being sent to the server
       logger.log("Đang tạo đơn hàng mới...", { order: data, items });
       
-      // Set the order date to current if not set
-      const orderWithDate = {
+      // Create a proper order object with all required fields
+      const orderData = {
         ...data,
-        orderDate: data.orderDate || new Date(),
-        status: "pending", // Ensure status is set
+        orderNumber: generateOrderNumber(), // Add required orderNumber
+        orderDate: new Date(), // Ensure it's a Date object, not a string
+        status: "pending", 
         totalAmount: totalAmount,
         discount: discount,
         finalAmount: finalAmount,
       };
       
-      logger.log("Gọi createOrder với data", { order: orderWithDate, items });
+      logger.log("Gọi createOrder với data", { order: orderData, items });
       
       // Call the mutation function
       createOrder({ 
-        order: orderWithDate, 
+        order: orderData, 
         items 
       });
       
