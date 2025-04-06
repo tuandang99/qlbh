@@ -297,32 +297,52 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-    // Create the order first
-    const [newOrder] = await db.insert(orders).values(order).returning();
-
-    // Then create all order items
-    for (const item of items) {
-      // Đảm bảo quantity có giá trị
-      const itemToInsert = {
-        ...item,
-        orderId: newOrder.id,
-        quantity: item.quantity || 0
+    try {
+      console.log("Database createOrder called with:", JSON.stringify(order), JSON.stringify(items));
+      
+      // Set default values for required fields
+      const orderToInsert = {
+        ...order,
+        status: order.status || 'pending',
+        orderDate: order.orderDate || new Date(),
+        totalAmount: order.totalAmount || 0,
+        finalAmount: order.finalAmount || 0
       };
       
-      await db.insert(orderItems).values(itemToInsert);
+      console.log("Order to insert:", JSON.stringify(orderToInsert));
+      
+      // Create the order first
+      const [newOrder] = await db.insert(orders).values(orderToInsert).returning();
+      console.log("Order created:", JSON.stringify(newOrder));
 
-      // Update product stock
-      const [product] = await db.select().from(products).where(eq(products.id, item.productId));
-      if (product) {
-        const newQuantity = product.stockQuantity - (item.quantity || 0);
-        await db
-          .update(products)
-          .set({ stockQuantity: newQuantity })
-          .where(eq(products.id, item.productId));
+      // Then create all order items
+      for (const item of items) {
+        // Ensure quantity has a value
+        const itemToInsert = {
+          ...item,
+          orderId: newOrder.id,
+          quantity: item.quantity || 0
+        };
+        
+        console.log("Inserting order item:", JSON.stringify(itemToInsert));
+        await db.insert(orderItems).values(itemToInsert);
+
+        // Update product stock
+        const [product] = await db.select().from(products).where(eq(products.id, item.productId));
+        if (product) {
+          const newQuantity = product.stockQuantity - (item.quantity || 0);
+          await db
+            .update(products)
+            .set({ stockQuantity: newQuantity })
+            .where(eq(products.id, item.productId));
+        }
       }
-    }
 
-    return newOrder;
+      return newOrder;
+    } catch (error) {
+      console.error("Error in createOrder database function:", error);
+      throw error;
+    }
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {

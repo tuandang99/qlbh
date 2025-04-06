@@ -712,13 +712,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", authenticateToken, async (req, res) => {
     try {
+      console.log("Received order request:", JSON.stringify(req.body));
+      
       // Validate main order
       const orderData = insertOrderSchema.parse(req.body.order);
+      console.log("Order data parsed:", JSON.stringify(orderData));
       
       // Validate order items
       if (!req.body.items || !Array.isArray(req.body.items) || req.body.items.length === 0) {
         return res.status(400).json({ message: "Order must have at least one item" });
       }
+      
+      console.log("Order items:", JSON.stringify(req.body.items));
       
       // Add current user to order
       orderData.userId = (req as any).user.id;
@@ -729,7 +734,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       orderData.orderNumber = `ORD-${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}-${timestamp}`;
       
       // Create the order with items
+      console.log("Creating order:", JSON.stringify(orderData));
       const newOrder = await storage.createOrder(orderData, req.body.items);
+      console.log("Order created successfully:", JSON.stringify(newOrder));
       
       // Log activity
       await storage.logActivity({
@@ -743,10 +750,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
+        console.error("Validation error:", validationError.message);
         res.status(400).json({ message: validationError.message });
       } else {
         console.error("Order creation error:", error);
-        res.status(500).json({ message: "Error creating order" });
+        res.status(500).json({ message: "Error creating order", error: String(error) });
       }
     }
   });
